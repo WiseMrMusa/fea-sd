@@ -12,4 +12,4 @@ Musa AbdulKareem
 
 Supervised by:
 
-Dr A.O Oyelade
+Dr A.O. Oyelade
