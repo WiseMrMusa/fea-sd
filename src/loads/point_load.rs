@@ -8,27 +8,46 @@ pub struct PunctualLoad {
     pub x: f64
 }
 
+
+// Reference: Structural Analysis II 
+
+
 impl LoadTraits for PunctualLoad {
-
+                        // (self.value / _span.powf(2.0))* (b.powf(2.0)*self.x  + self.x.powf(2.0)*b/2.0)
+    // Given a span, this function returns the fixed end moment at point A
     fn fem_a (&self, span: &Span) -> f64 {
-        let _span = span.get_length();
-        let b = _span - self.x;
+        let l = span.get_length();
+        let a = self.x;
+        let b = l - a;
+        let w = self.value;
 
+        // This gets the support type of the start node
         match span.get_est_a() {
+
+            // If the support type of the start node is fixed
             SupportType::Fixed => {
+                    // This gets the support type of the end node
                 match span.get_est_b() {
+                    // If the support type of the end node is fixed
                     SupportType::Fixed => {
-                        (self.x * (b.powf(2.0))* self.value) / _span.powf(2.0)
-                    }
+                        // This is the fix      ed end moment at point A
+                        - (w * a * (b.powf(2.0))) / l.powf(2.0)
+                        }
+                    // If the support type of the end node is a roller
                     SupportType::Roller => {
-                        self.value / _span.powf(2.0) * (b.powf(2.0)*self.x  + self.x.powf(2.0)*b/2.0)
+                        // This is the roller end moment at point A
+                           - w / l.powf(2.0) * (b.powf(2.0)*a  + a.powf(2.0)*b/2.0)
                     }
+                    // If the support type of the end node is a hinged
                     SupportType::Hinged => {
-                        (self.value / _span.powf(2.0))* (b.powf(2.0)*self.x  + self.x.powf(2.0)*b/2.0)
+                        // This is the hinged end moment at point A
+                        - (self.value / l.powf(2.0))* (b.powf(2.0)*self.x  + self.x.powf(2.0)*b/2.0)
                     }
                 }
             }
+            // If the support type of the start node is a roller
             SupportType::Roller => {
+                // This is the roller end moment at point A
                 0.0
             }
             SupportType::Hinged => {
@@ -84,8 +103,25 @@ mod punctual_load_test {
 
 
         let span = Span::new(start_node, end_node, vec![Default::default()], vec![Default::default()]);
-        assert_eq!(60.0, load.fem_a(&span));
+        assert_eq!(-60.0, load.fem_a(&span));
         assert_eq!(60.0, load.fem_b(&span));
+    }
+
+    #[test]
+    fn test2_point_load_with_fixed_ends() {
+        use super::*;
+        let load = PunctualLoad{ value: 40.0, x: 2.0};
+
+        let x = 0.0;
+        let settlement = 0.0;
+        let support = SupportType::Fixed;
+        let start_node = Node::new(x, settlement, support);
+        let end_node = Node::new(4.0, settlement, support);
+
+
+        let span = Span::new(start_node, end_node, vec![Default::default()], vec![Default::default()]);
+        assert_eq!(-20.0, load.fem_a(&span));
+        assert_eq!(20.0, load.fem_b(&span));
     }
 
     #[test]
@@ -102,7 +138,7 @@ mod punctual_load_test {
 
 
         let span = Span::new(start_node, end_node, vec![Default::default()], vec![Default::default()]);
-        assert_eq!(90.0, load.fem_a(&span));
+        assert_eq!(-90.0, load.fem_a(&span));
         assert_eq!(0.0, load.fem_b(&span));
     }
 

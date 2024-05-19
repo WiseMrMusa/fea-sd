@@ -143,6 +143,24 @@ mod punctual_load_test {
 
         let span = Span::new(start_node, end_node, vec![Default::default()], vec![load, load]);
         assert_eq!(120.0, span.mem_a());
-        assert_eq!(120.0, span.mem_b());
+        assert_eq!(120.0, span.mem_b()); 
+    }
+
+
+    #[test]
+    fn test2_point_load_with_fixed_ends() {
+        use super::*;
+        let load = PunctualLoad{ value: 40.0, x: 2.0};
+
+        let x = 0.0;
+        let settlement = 0.0;
+        let support = SupportType::Fixed;
+        let start_node = Node::new(x, settlement, support);
+        let end_node = Node::new(4.0, settlement, support);
+
+
+        let span = Span::new(start_node, end_node, vec![Default::default()], vec![load, load]);
+        assert_eq!(80.0, span.mem_a());
+        assert_eq!(80.0, span.mem_b());
     }
 }
