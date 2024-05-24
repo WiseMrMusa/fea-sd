@@ -142,7 +142,7 @@ mod punctual_load_test {
 
 
         let span = Span::new(start_node, end_node, vec![Default::default()], vec![load, load]);
-        assert_eq!(120.0, span.mem_a());
+        assert_eq!(-120.0, span.mem_a());
         assert_eq!(120.0, span.mem_b()); 
     }
 
@@ -159,8 +159,8 @@ mod punctual_load_test {
         let end_node = Node::new(4.0, settlement, support);
 
 
-        let span = Span::new(start_node, end_node, vec![Default::default()], vec![load, load]);
-        assert_eq!(80.0, span.mem_a());
-        assert_eq!(80.0, span.mem_b());
+        let span = Span::new(start_node, end_node, vec![Default::default()], vec![ load]);
+        assert_eq!(-20.0, span.mem_a());
+        assert_eq!(20.0, span.mem_b());
     }
 }
