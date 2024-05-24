@@ -37,7 +37,7 @@ impl SpanTraits for Span {
         2.0 * self.ei * (
             2.0 * self.start_node.get_deflection() + self.end_node.get_deflection() 
             - 3.0 * (
-                self.start_node.get_rotation() - self.end_node.get_deflection()
+                self.start_node.get_rotation() - self.end_node.get_rotation()
             ) / self.length
         ) / self.length   
 
@@ -65,7 +65,7 @@ impl SpanTraits for Span {
             2.0 * self.ei * (
                 self.start_node.get_deflection() + 2.0 * self.end_node.get_deflection() 
                 - 3.0 * (
-                    self.start_node.get_rotation() - self.end_node.get_deflection()
+                    self.start_node.get_rotation() - self.end_node.get_rotation()
                 ) / self.length
             ) / self.length   
 
