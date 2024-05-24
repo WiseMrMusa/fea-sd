@@ -1,4 +1,4 @@
-use crate::nodes::node::{Node, SupportType, NodeTraits};
+use crate::nodes::node::{Node, NodeTraits};
 
 struct Element {
     nodes: [usize; 2], // IDs of the nodes forming the element
@@ -20,11 +20,20 @@ struct MaterialProperties {
 }
 
 impl Frame {
+    fn transpose(matrix: [[f64; 4]; 4]) -> [[f64; 4]; 4] {
+        let mut transposed = [[0.0; 4]; 4];
+        for i in 0..4 {
+            for j in 0..4 {
+                transposed[i][j] = matrix[j][i];
+            }
+        }
+        transposed
+    }
+
     fn calculate_internal_forces(&self) -> Vec<(f64, f64)> {
         let mut internal_forces = Vec::new();
         for element in &self.elements {
             // Calculate internal forces for each element
-            // You can use finite element analysis methods here
             let node1 = &self.nodes[element.nodes[0]];
             let node2 = &self.nodes[element.nodes[1]];
             
@@ -52,11 +61,20 @@ impl Frame {
                 [0.0, 0.0,  -s,    c],
             ];
             
+            let transposed_transform = Frame::transpose(transform);
             let mut global_stiffness = [[0.0; 4]; 4];
             for i in 0..4 {
                 for j in 0..4 {
                     for k in 0..4 {
-                        global_stiffness[i][j] += transform[k][i] * local_stiffness[k][j];
+                        global_stiffness[i][j] += transposed_transform[i][k] * local_stiffness[k][j];
+                    }
+                }
+            }
+            let mut final_global_stiffness = [[0.0; 4]; 4];
+            for i in 0..4 {
+                for j in 0..4 {
+                    for k in 0..4 {
+                        final_global_stiffness[i][j] += global_stiffness[i][k] * transform[k][j];
                     }
                 }
             }
@@ -95,7 +113,8 @@ impl Frame {
             for i in 0..4 {
                 local_displacements[i] = displacements[2*element.nodes[i/2]+i%2];
             }
-            let local_forces = multiply_matrices(&local_stiffness, &multiply_matrices(&transform, &local_displacements));
+            let local_displacements = multiply_matrices(&local_stiffness, &local_displacements);
+            let local_forces = multiply_matrices(&transform, &local_displacements);
             let shear_force = local_forces[0];
             let bending_moment = local_forces[1];
             
